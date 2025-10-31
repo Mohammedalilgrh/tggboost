@@ -1,0 +1,5 @@
+{
+  "name": "Telegram Member Manager",
+  "description": "A web-based tool to scrape members from Telegram channels and add them to your own group, with advanced controls and safety features.",
+  "requestFramePermissions": []
+}
