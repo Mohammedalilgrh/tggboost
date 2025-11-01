@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { OperationStatus } from '../types';
+import { OperationStatus, ConnectionStatus } from '../types';
 import Card from './ui/Card';
 import Button from './ui/Button';
 import { PlayIcon } from './icons/PlayIcon';
@@ -10,6 +9,7 @@ import Spinner from './ui/Spinner';
 
 interface ControlPanelProps {
   status: OperationStatus;
+  connectionStatus: ConnectionStatus;
   onScrape: () => void;
   onAdd: () => void;
   onPause: () => void;
@@ -20,6 +20,7 @@ interface ControlPanelProps {
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
   status,
+  connectionStatus,
   onScrape,
   onAdd,
   onPause,
@@ -32,6 +33,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   const isAdding = status === OperationStatus.Adding;
   const isPaused = status === OperationStatus.Paused;
   const isWorking = isScraping || isAdding;
+  const isConnected = connectionStatus === ConnectionStatus.Connected;
 
   const getStatusMessage = () => {
     switch (status) {
@@ -50,20 +52,31 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     }
   };
 
+  const getConnectionColor = () => {
+    switch(connectionStatus) {
+        case ConnectionStatus.Connected: return 'text-green-400';
+        case ConnectionStatus.Connecting: return 'text-yellow-400';
+        case ConnectionStatus.Disconnected: return 'text-red-400';
+    }
+  }
+
   return (
     <Card title="Controls">
       <div className="space-y-4">
         <div className="text-center p-3 bg-gray-900 rounded-md">
+            <p className={`font-mono text-sm uppercase font-bold mb-2 ${getConnectionColor()}`}>
+                {connectionStatus}
+            </p>
             <p className="font-mono text-lg text-gray-300">{getStatusMessage()}</p>
             {isWorking && <Spinner className="w-5 h-5 mx-auto mt-2" />}
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Button onClick={onScrape} disabled={isWorking || isPaused}>
+          <Button onClick={onScrape} disabled={!isConnected || isWorking || isPaused}>
             <PlayIcon className="h-5 w-5" />
             <span>1. Start Scraping</span>
           </Button>
-          <Button onClick={onAdd} disabled={isWorking || isPaused || scrapedUserCount === 0} variant="primary">
+          <Button onClick={onAdd} disabled={!isConnected || isWorking || isPaused || scrapedUserCount === 0} variant="primary">
             <PlayIcon className="h-5 w-5" />
             <span>2. Start Adding</span>
           </Button>
@@ -73,18 +86,18 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {isAdding ? (
-            <Button onClick={onPause} variant="warning">
+            <Button onClick={onPause} variant="warning" disabled={!isConnected}>
               <PauseIcon className="h-5 w-5" />
               <span>Pause</span>
             </Button>
           ) : (
-            <Button onClick={onResume} disabled={!isPaused} variant="warning">
+            <Button onClick={onResume} disabled={!isConnected || !isPaused} variant="warning">
               <PlayIcon className="h-5 w-5" />
               <span>Resume</span>
             </Button>
           )}
 
-          <Button onClick={onStop} disabled={isIdle} variant="danger">
+          <Button onClick={onStop} disabled={!isConnected || isIdle} variant="danger">
             <StopIcon className="h-5 w-5" />
             <span>Stop</span>
           </Button>

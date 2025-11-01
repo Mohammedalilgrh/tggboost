@@ -1,4 +1,3 @@
-
 export enum OperationStatus {
   Idle = 'Idle',
   Scraping = 'Scraping',
@@ -6,6 +5,12 @@ export enum OperationStatus {
   Paused = 'Paused',
   Stopped = 'Stopped',
   Finished = 'Finished',
+}
+
+export enum ConnectionStatus {
+  Connected = 'Connected',
+  Connecting = 'Connecting',
+  Disconnected = 'Disconnected',
 }
 
 export interface ScrapedUser {
@@ -39,4 +44,5 @@ export interface Configuration {
   minDelay: number;
   maxDelay: number;
   isContinuous: boolean;
+  backendUrl: string;
 }
